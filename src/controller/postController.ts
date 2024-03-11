@@ -4,6 +4,7 @@ import multer = require("multer");
 import sharp from 'sharp';
 import handle from 'express-async-handler';
 import { Request, Response } from "express";
+import { IRequest } from "./authController";
 
 export const getAllPosts = factory.getAll (Post);
 export const createPost = factory.createOne (Post);
@@ -11,9 +12,19 @@ export const getPost = factory.getOne (Post);
 export const updatePost = factory.updateOne (Post);
 export const deletePost = factory.deleteOne (Post);
 
-export const getRelatedPosts = handle (async (req:Request, res:Response) : Promise<void> =>
-{
 
+export const getRelatedPosts = handle (async(req:Request, res:Response) : Promise<void> =>
+{
+    const friends = factory.getAllFriends ((req as IRequest).user._id, true);
+
+    const posts = await Post.find ({user: {$in: friends}});
+
+    res.status (200).json ({
+        status: 'success',
+        data: {
+            posts
+        }
+    })
 });
 
 
