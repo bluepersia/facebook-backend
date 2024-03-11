@@ -88,6 +88,18 @@ export const protect = handle (async(req:Request, res:Response, next:() => void)
     if (user.hasPasswordChangedSince (new Date (decoded.iat * 1000)))
         throw new AppError ('Password has changed since last login. Please re-log in.', 401);
 
-    (this as IRequest).user = user;
+    (req as IRequest).user = user;
     next ();
 });
+
+
+export const restrictTo = function (...roles:string[])
+{
+    return function (req:Request, res:Response, next:() => void) : void
+    {
+        if (!roles.includes ((req as IRequest).user.role))
+            throw new AppError ('You do not have permission', 403);
+
+        next ();
+    }
+}
