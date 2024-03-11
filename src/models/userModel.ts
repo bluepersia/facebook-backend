@@ -12,7 +12,8 @@ export interface IUser
     imageCover:string,
     password:string | undefined,
     passwordConfirm: string | undefined,
-    passwordChangedAt:Date
+    passwordChangedAt:Date,
+    comparePasswords: (s:string, hash:string) => Promise<boolean>
 }
 
 
@@ -76,6 +77,12 @@ userSchema.pre ('save', async function (next) : Promise<void>
     this.passwordConfirm = undefined;
     next ();
 });
+
+
+userSchema.methods.comparePasswords = async function (s:string, hash:string) : Promise<boolean>
+{
+    return await bcrypt.compare (s, hash);
+}
 
 
 const User = model ('User', userSchema);
