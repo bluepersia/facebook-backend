@@ -11,6 +11,8 @@ router.post ('/login', upload.none (), authController.login);
 router.post ('/forgot-password', upload.none(), authController.forgotPassword);
 router.patch ('/reset-password/:token', upload.none(), authController.resetPassword);
 
+router.patch ('/update-password', upload.none(), authController.updatePassword);
+
 router.use (authController.protect);
 
 router.get ('/', userController.getAllUsers);
