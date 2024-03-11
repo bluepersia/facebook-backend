@@ -1,4 +1,4 @@
-import { Schema, Types, model } from "mongoose";
+import { Query, Schema, Types, model } from "mongoose";
 
 
 export interface IPost
@@ -22,6 +22,18 @@ const postSchema = new Schema<IPost> ({
     }
 })
 
+
+postSchema.virtual ('images', {
+    ref: 'Image',
+    foreignField: 'post',
+    localField: '_id'
+})
+
+postSchema.pre (/^find/, function (next): void
+{
+    (this as Query<unknown, unknown>).populate ('images');
+    next ();
+});
 
 const Post = model ('Post', postSchema);
 
