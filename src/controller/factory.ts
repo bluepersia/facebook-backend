@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import handle from 'express-async-handler';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import APIFeatures from '../util/APIFeatures';
 import AppError from '../util/AppError';
-
+import Friendship from '../models/friendshipModel';
 
 export const getAll = (Model:Model<any>) => handle (async (req:Request, res:Response) : Promise<void> =>
 {
@@ -82,4 +82,17 @@ export const imageFilter = function (req:Request, file:Express.Multer.File, cb:F
         cb (null, true);
     else
         cb (new AppError ('Not an image. Please only use images.', 400), false);
+}
+
+export const getAllFriends = async function (userId:Types.ObjectId, includeMyself:boolean) : Promise<Types.ObjectId[]>
+{
+    const friends = (await Friendship.find ({$or: [{a: userId}, {b: userId}]})).map (friendship => friendship.a === userId ? friendship.b : friendship.a);
+
+    if (includeMyself)
+        friends.unshift (userId);
+
+    return friends;
+
+
+    
 }
