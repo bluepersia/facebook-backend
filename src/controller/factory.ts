@@ -4,10 +4,16 @@ import { Model, Types } from 'mongoose';
 import APIFeatures from '../util/APIFeatures';
 import AppError from '../util/AppError';
 import Friendship from '../models/friendshipModel';
+import { IRequest } from './authController';
 
 export const getAll = (Model:Model<any>) => handle (async (req:Request, res:Response) : Promise<void> =>
 {
-    const query = Model.find ();
+    const filter:{[key:string]:any} = {};
+
+    if (req.params.userId)
+        filter.user = req.params.userId;
+
+    const query = Model.find (filter);
     new APIFeatures (req.query, query).all ();
     const docs = await query;
 
@@ -22,6 +28,9 @@ export const getAll = (Model:Model<any>) => handle (async (req:Request, res:Resp
 
 export const createOne = (Model:Model<any>) => handle (async (req:Request, res:Response) : Promise<void> =>
 {
+    if (req.params.userId)
+        req.body.user = req.params.userId;
+
     const doc = await Model.create (req.body);
 
     res.status (201).json ({
@@ -95,4 +104,12 @@ export const getAllFriends = async function (userId:Types.ObjectId, includeMysel
 
 
     
+}
+
+
+
+export const setMine = function (req:Request, res:Response, next:() => void) : void
+{
+    req.params.userId = (req as IRequest).user.id;
+    next ();
 }
