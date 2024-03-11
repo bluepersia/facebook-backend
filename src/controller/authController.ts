@@ -4,6 +4,7 @@ import handle from 'express-async-handler';
 import jwt from 'jsonwebtoken';
 import { HydratedDocument } from "mongoose";
 import AppError from "../util/AppError";
+import Email from "../util/Email";
 const util = require ('util');
 
 function signJWT (id:string) : string
@@ -103,3 +104,32 @@ export const restrictTo = function (...roles:string[])
         next ();
     }
 }
+
+
+
+export const forgotPassword = handle (async (req:Request, res:Response) : Promise<void> =>
+{
+    const user = await User.findOne({email: req.body.email});
+
+    if (!user)
+        throw new AppError ('No user with that email', 404);
+
+    const token = user.genPasswordResetToken ();
+    await user.save ({validateBeforeSave:false});
+
+    const url = `${process.env.HOME_URL}/reset-password?token=${token}`;
+
+    try 
+    {
+        await new Email (user, {url}).sendPasswordReset ();
+    }
+    catch
+    {
+        throw new AppError ('Something went wrong sending mail. Please try again later.', 500);
+    }
+
+    res.status (200).json ({
+        status: 'success',
+        message: 'Token was sent!'
+    })
+});

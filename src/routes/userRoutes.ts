@@ -8,6 +8,8 @@ const upload = multer ();
 router.post ('/sign-up', upload.none (), authController.signup);
 router.post ('/login', upload.none (), authController.login);
 
+router.post ('/forgot-password', upload.none(), authController.forgotPassword);
+
 router.use (authController.protect);
 
 router.get ('/', userController.getAllUsers);
