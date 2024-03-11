@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import { HydratedDocument } from "mongoose";
 import AppError from "../util/AppError";
 import Email from "../util/Email";
+import crypto from 'crypto';
 const util = require ('util');
 
 function signJWT (id:string) : string
@@ -132,4 +133,46 @@ export const forgotPassword = handle (async (req:Request, res:Response) : Promis
         status: 'success',
         message: 'Token was sent!'
     })
+});
+
+
+export const resetPassword = handle (async(req:Request, res:Response) : Promise<void> =>
+{
+    const hashedToken = crypto.createHash ('sha256').update (req.params.token).digest ('hex');
+
+    const user = await User.findOne({
+        passwordResetToken: hashedToken,
+        passwordResetExpires: { $gt: Date.now()}
+    })
+
+    if (!user)
+        throw new AppError ('Token invalid or has expired', 400);
+
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+
+    await user.save ();
+
+    signSendJWT (user, res);
+});
+
+export const updatePassword = handle (async (req:Request, res:Response): Promise<void> =>
+{
+    const user = await User.findById ((req as IRequest).user.id).select ('+password');
+
+    if (!user)
+        throw new AppError ('No user with that ID', 404);
+
+    if (!(await user.comparePasswords (req.body.passwordCurrent, user.password!)))
+        throw new AppError ('Incorrect password', 401);
+
+
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+
+    await user.save ();
+
+    signSendJWT (user, res);
 });
