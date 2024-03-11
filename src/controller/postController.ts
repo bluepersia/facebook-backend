@@ -1,4 +1,5 @@
 import Post from "../models/postModel";
+import Image from "../models/imageModel";
 import factory = require ('./factory');
 import multer = require("multer");
 import sharp from 'sharp';
@@ -41,7 +42,13 @@ export const processImages = handle (async (req:Request, res:Response, next:() =
 
     if (files.images)
     {
-        req.body.images = files.images.map ((img, i) => `img-<SIZE>-${Date.now()}-${i}.jpeg`);
+
+        const images = files.images.map ((img, i) => `img-<SIZE>-${Date.now()}-${i}.jpeg`);
+
+        (req as factory.IRequestCreated).onCreate = async function (id:string) : Promise<void>
+        {
+            await Promise.all (images.map (async (img, i) => await Image.create ({post:id, url:img })));
+        }
 
         await Promise.all (files.images.map (async (img, i) => {
 
@@ -49,19 +56,19 @@ export const processImages = handle (async (req:Request, res:Response, next:() =
             .resize (75, 75)
             .toFormat ('jpeg')
             .jpeg ({quality: 100})
-            .toFile (`/public/img/post/${req.body.images[i]}`.replace ('<SIZE>', 'small'));
+            .toFile (`/public/img/post/${images[i]}`.replace ('<SIZE>', 'small'));
 
             await sharp (img.buffer)
             .resize (200, 200)
             .toFormat ('jpeg')
             .jpeg ({quality: 100})
-            .toFile (`/public/img/post/${req.body.images[i]}`.replace ('<SIZE>', 'medium'));
+            .toFile (`/public/img/post/${images[i]}`.replace ('<SIZE>', 'medium'));
 
             await sharp (img.buffer)
             .resize (400, 400)
             .toFormat ('jpeg')
             .jpeg ({quality: 100})
-            .toFile (`/public/img/post/${req.body.images[i]}`.replace ('<SIZE>', 'large'));
+            .toFile (`/public/img/post/${images[i]}`.replace ('<SIZE>', 'large'));
         }));
     }
 

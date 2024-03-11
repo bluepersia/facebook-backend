@@ -31,7 +31,10 @@ export const getAll = (Model:Model<any>) => handle (async (req:Request, res:Resp
     })
 }); 
 
-
+export interface IRequestCreated extends Request
+{
+    onCreate: (id:string) => void
+}
 export const createOne = (Model:Model<any>) => handle (async (req:Request, res:Response) : Promise<void> =>
 {
     if (req.params.userId)
@@ -44,6 +47,8 @@ export const createOne = (Model:Model<any>) => handle (async (req:Request, res:R
         req.body.image = req.params.imageId;
 
     const doc = await Model.create (req.body);
+
+    (req as IRequestCreated).onCreate (doc.id);
 
     res.status (201).json ({
         status: 'success',
