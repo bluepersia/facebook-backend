@@ -1,8 +1,11 @@
 import express from 'express';
 const router = express.Router ();
+import reactionRouter from './reactionRoutes';
 import postController = require ('../controller/postController');
 import authController = require ('../controller/authController');
 import { setMine } from '../controller/factory';
+
+router.use ('/:postId/reactions', reactionRouter);
 
 router.use (authController.protect);
 
