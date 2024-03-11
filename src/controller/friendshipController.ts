@@ -3,6 +3,7 @@ import Friendship from "../models/friendshipModel"
 import handle from 'express-async-handler';
 import { IRequest } from "./authController";
 import AppError from "../util/AppError";
+import factory = require ('./factory');
 
 export const addFriend = handle (async(req:Request, res:Response) : Promise<void> =>
 {
@@ -18,6 +19,20 @@ export const addFriend = handle (async(req:Request, res:Response) : Promise<void
         status: 'success',
         data: {
             friendship
+        }
+    })
+});
+
+
+export const getMyFriends = handle (async(req:Request, res:Response):Promise<void> =>
+{
+    const {user} = req as IRequest;
+    const friends = factory.getAllFriends (user._id, false);
+
+    res.status (200).json ({
+        status: 'success',
+        data :{
+            friends
         }
     })
 });
