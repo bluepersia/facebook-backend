@@ -13,6 +13,12 @@ export const getAll = (Model:Model<any>) => handle (async (req:Request, res:Resp
     if (req.params.userId)
         filter.user = req.params.userId;
 
+    if (req.params.postId)
+        filter.post = req.params.postId;
+
+    if (req.params.imageId)
+        filter.image = req.params.imageId;
+
     const query = Model.find (filter);
     new APIFeatures (req.query, query).all ();
     const docs = await query;
@@ -30,6 +36,12 @@ export const createOne = (Model:Model<any>) => handle (async (req:Request, res:R
 {
     if (req.params.userId)
         req.body.user = req.params.userId;
+
+    if (req.params.postId)
+        req.body.post = req.params.postId;
+
+    if (req.params.imageId)
+        req.body.image = req.params.imageId;
 
     const doc = await Model.create (req.body);
 

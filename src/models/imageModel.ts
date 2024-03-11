@@ -1,8 +1,9 @@
 import { Types } from "mongoose";
 import { Schema, model } from "mongoose";
+import { IReactable } from "./reactionModel";
 
 
-export interface IImage
+export interface IImage extends IReactable
 {
     post: Types.ObjectId | undefined,
     album: Types.ObjectId | undefined,
@@ -41,6 +42,10 @@ const imageSchema = new Schema<IImage> ({
     createdAt: {
         type:Date,
         default:Date.now ()
+    },
+    likes: {
+        type:Number,
+        default: 0
     }
 })
 
