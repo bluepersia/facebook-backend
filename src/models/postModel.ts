@@ -5,6 +5,7 @@ export interface IPost
 {
     user: Types.ObjectId,
     text: string,
+    images: Types.ObjectId[],
     createdAt:Date
 }
 
@@ -15,18 +16,34 @@ const postSchema = new Schema<IPost> ({
         ref: 'User',
         required: [true, 'Post must belong to a user']
     },
-    text: String,
+    text: {
+        type:String,
+        validate: {
+            validator: function (val:string) : boolean
+            {
+                return Boolean (val || this.images.length > 0);
+            },
+
+            message: 'Post must contain either text or images'
+        }
+    },
+    images: {   
+        type: [{
+            type: Schema.ObjectId,
+            ref: 'Image'
+        }],
+        validate: {
+            validator: function (val:Types.ObjectId[]) :boolean
+            {
+                return val.length > 0 || this.text;
+            },
+            message: 'Post must contain either text or images'
+        }
+    },
     createdAt: {
         type: Date,
         default: Date.now ()
     }
-})
-
-
-postSchema.virtual ('images', {
-    ref: 'Image',
-    foreignField: 'post',
-    localField: '_id'
 })
 
 postSchema.pre (/^find/, function (next): void
