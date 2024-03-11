@@ -12,6 +12,7 @@ export const getPost = factory.getOne (Post);
 export const updatePost = factory.updateOne (Post);
 export const deletePost = factory.deleteOne (Post);
 
+
 export const getRelatedPosts = handle (async(req:Request, res:Response) : Promise<void> =>
 {
     const friends = factory.getAllFriends ((req as IRequest).user._id, true);
@@ -25,6 +26,7 @@ export const getRelatedPosts = handle (async(req:Request, res:Response) : Promis
         }
     })
 });
+
 
 const upload = multer ({
     storage: multer.memoryStorage (),
