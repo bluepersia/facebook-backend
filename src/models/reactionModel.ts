@@ -47,6 +47,7 @@ const reactionSchema = new Schema<IReaction> ({
 reactionSchema.pre (/^find/, function(next):void
 {
     (this as Query<unknown, unknown>).populate ({path: 'user', select: 'name imageProfile'})
+    next ();
 });
 
 async function calcLikes (doc:HydratedDocument<IReaction>) : Promise<void>
@@ -63,26 +64,26 @@ async function calcLikes (doc:HydratedDocument<IReaction>) : Promise<void>
         }
     ])
 
+
     const data = stats.length > 0 ? stats[0] : {likes: 0};
 
     if (doc.post)
         await Post.findByIdAndUpdate (doc.post, data);
     else
-        await Post.findByIdAndUpdate (doc.image, data);
+        await Image.findByIdAndUpdate (doc.image, data);
 }
 
-reactionSchema.post ('save', function () : void
+reactionSchema.post ('save', async function () : Promise<void>
 {
-    calcLikes (this);
+    await calcLikes (this);
 });
 
-reactionSchema.post (/(findByIdAndUpdate|findByIdAndDelete)/, function (doc) :void
+reactionSchema.post (/(findOneAndUpdate|findOneAndDelete)/, async function (doc) : Promise<void>
 {
-    calcLikes (doc);
+    await calcLikes (doc);
 });
 
-reactionSchema.index ({user:1, post:1}, {unique:true});
-reactionSchema.index ({user:1, image:1}, {unique:true});
+reactionSchema.index ({user:1, post:1, image:1}, {unique:true});
 
 const Reaction = model ('Reaction', reactionSchema);
 

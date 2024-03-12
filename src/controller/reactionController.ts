@@ -10,8 +10,13 @@ export const getAllReactions = factory.getAll (Reaction);
 export const toggleLike = handle (async (req:Request, res:Response) : Promise<void> =>
 {
     const key = req.body.target;
-    let like = await Reaction.findOne ({user: (req as IRequest).user.id, [key]:req.body.targetId});
+    const filter:{[key:string]:any} = {
+        user: (req as IRequest).user.id,
+        [key]:req.body.targetId
+    }
 
+    
+    let like = await Reaction.findOne (filter);
     if (like)
     {
         await Reaction.findByIdAndDelete (like.id);
@@ -23,7 +28,7 @@ export const toggleLike = handle (async (req:Request, res:Response) : Promise<vo
         return;
     }
 
-    like = await Reaction.create ({[key]:req.body.targetId, user:(req as IRequest).user.id})
+    like = await Reaction.create (filter);
 
     res.status (200).json ({
         status: 'success',

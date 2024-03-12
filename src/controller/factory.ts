@@ -67,7 +67,7 @@ export const getOne = (Model:Model<any>) => handle (async (req:Request, res:Resp
 {
     const doc = await Model.findById (req.params.id);
 
-    if (!doc || !doc.active)
+    if (!doc || (doc.hasOwnProperty ('active') && !doc.active))
         throw new AppError ('No document found with that ID', 404);
 
     res.status (200).json ({

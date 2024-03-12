@@ -11,6 +11,7 @@ import postRouter from './routes/postRoutes';
 import userRouter from './routes/userRoutes';
 import imageRouter from './routes/imageRoutes';
 import friendshipRouter from './routes/friendshipRoutes';
+import reactionRouter from './routes/reactionRoutes';
 import globalErrorHandler from './controller/errorController';
 import AppError from './util/AppError';
 const app = express ();
@@ -33,7 +34,7 @@ app.use (express.static (`./public`, {
 }))
 
 app.use (rateLimit ({
-    windowMs: 10000,
+    windowMs: 5000,
     max: 10,
     message: 'Rate limit exceeded'
 }));
@@ -47,7 +48,7 @@ app.use ('/api/v1/posts', postRouter);
 app.use ('/api/v1/users', userRouter);
 app.use ('/api/v1/friends', friendshipRouter);
 app.use ('/api/v1/images', imageRouter);
-
+app.use ('/api/v1/reactions', reactionRouter);
 
 
 app.all ('*', () => { throw new AppError ('Route not found!', 404)});
