@@ -16,6 +16,7 @@ export interface IUser
     passwordChangedAt:Date,
     passwordResetToken:string | undefined,
     passwordResetExpires: Date | undefined,
+    active: boolean,
     comparePasswords: (s:string, hash:string) => Promise<boolean>,
     hasPasswordChangedSince: (date:Date) => boolean,
     genPasswordResetToken: () => string
@@ -68,7 +69,11 @@ const userSchema = new Schema<IUser>({
     },
     passwordChangedAt: Date,
     passwordResetToken: String,
-    passwordResetExpires: Date
+    passwordResetExpires: Date,
+    active: {
+        type: Boolean,
+        default: true
+    }
 })
 
 userSchema.pre ('save', async function (next) : Promise<void>

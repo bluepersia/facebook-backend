@@ -67,3 +67,14 @@ export const updateMe = handle (async(req:Request, res:Response) : Promise<void>
         }
     })
 });     
+
+
+export const deleteMe = handle (async(req:Request, res:Response) : Promise<void> =>
+{
+    await User.findByIdAndUpdate ((req as IRequest).user.id, {active: false});
+
+    res.status (204).json ({
+        status: 'success',
+        data: null
+    })
+});
