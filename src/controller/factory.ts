@@ -19,6 +19,7 @@ export const getAll = (Model:Model<any>) => handle (async (req:Request, res:Resp
     if (req.params.imageId)
         filter.image = req.params.imageId;
 
+
     const query = Model.find (filter);
     new APIFeatures (req.query, query).all ();
     const docs = await query;
@@ -50,8 +51,9 @@ export const createOne = (Model:Model<any>) => handle (async (req:Request, res:R
 
     const onCreate = (req as IRequestCreated).onCreate;
 
-    if (onCreate)
-        onCreate (doc.id);
+
+    if (onCreate != undefined)
+        await onCreate (doc.id);
 
     res.status (201).json ({
         status: 'success',
