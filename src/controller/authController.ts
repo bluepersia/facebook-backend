@@ -58,6 +58,22 @@ export const login = handle (async (req:Request, res:Response) : Promise<void> =
     if (!user)
         throw new AppError ('No user with that email', 404);
 
+    if (!user.active)
+    {
+        if (!req.query.reactivate)
+        {
+            res.status (200).json ({
+                status: 'success',
+                message: 'Your account is deactivated. Do you wish to reactivate?'
+            })
+            return;
+        }else
+        {
+            user.active = true;
+            await user.save ({validateBeforeSave:false});
+        }
+    }
+
     if (!(await user.comparePasswords (password, user.password!)))
         throw new AppError ('Incorrect password', 401);
 

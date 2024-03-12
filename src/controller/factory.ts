@@ -8,7 +8,7 @@ import { IRequest } from './authController';
 
 export const getAll = (Model:Model<any>) => handle (async (req:Request, res:Response) : Promise<void> =>
 {
-    const filter:{[key:string]:any} = {};
+    const filter:{[key:string]:any} = {active: {$ne:false}};
 
     if (req.params.userId)
         filter.user = req.params.userId;
@@ -62,7 +62,7 @@ export const getOne = (Model:Model<any>) => handle (async (req:Request, res:Resp
 {
     const doc = await Model.findById (req.params.id);
 
-    if (!doc)
+    if (!doc || !doc.active)
         throw new AppError ('No document found with that ID', 404);
 
     res.status (200).json ({
