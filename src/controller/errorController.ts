@@ -3,6 +3,7 @@ import AppError from "../util/AppError";
 
 export default function globalErrorHandler (err:Error, req:Request, res:Response, next: ()=> void) : void
 {
+
     if (process.env.NODE_ENV === 'production')
     {
         if (err.name === 'CastError')
@@ -10,7 +11,8 @@ export default function globalErrorHandler (err:Error, req:Request, res:Response
         else if (err.hasOwnProperty ('code') && (err as CodeError).code === 11000)
             err = handleDuplicateErrorDb (err as DuplicateError);
         else if (err.name === 'ValidationError')
-            err = new AppError (err.message, 400);
+            err = handleValidationErrorDb (err as ValidationError);
+        
 
         if (err.name === 'JsonWebTokenError')
             err = new AppError ('Invalid token', 401);
@@ -79,4 +81,20 @@ function handleDuplicateErrorDb (err:DuplicateError) : AppError
     let msg = `${key} ${value} already exists.`;
     msg = msg[0].toUpperCase () + msg.slice (1);
     return new AppError (msg, 400);
+}
+
+
+
+interface ValidationError extends Error
+{
+    errors: {
+        [key:string]: {
+            message:string
+        }
+    }
+}
+
+function handleValidationErrorDb (err:ValidationError) : AppError
+{
+    return new AppError (Object.entries (err.errors)[0][1].message, 400);
 }
