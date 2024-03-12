@@ -26,6 +26,7 @@ export default function globalErrorHandler (err:Error, req:Request, res:Response
         const appError = err as AppError;
         statusCode = appError.statusCode;
         status = appError.status;
+        message = appError.message;
     }
 
     res.status (statusCode);

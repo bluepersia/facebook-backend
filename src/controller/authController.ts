@@ -93,8 +93,10 @@ export const protect = handle (async(req:Request, res:Response, next:() => void)
     else
         token = req.cookies.jwt;
 
+
     if (!token)
         throw new AppError ('You are not logged in', 401);
+
 
     const decoded = await util.promisify (jwt.verify)(token, process.env.JWT_SECRET);
 

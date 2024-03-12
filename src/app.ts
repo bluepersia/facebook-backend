@@ -15,6 +15,7 @@ import globalErrorHandler from './controller/errorController';
 import AppError from './util/AppError';
 const app = express ();
 
+
 app.use (helmet ());
 app.use (mongoSanitize ());
 app.use (xss ());
@@ -46,6 +47,8 @@ app.use ('/api/v1/posts', postRouter);
 app.use ('/api/v1/users', userRouter);
 app.use ('/api/v1/friends', friendshipRouter);
 app.use ('/api/v1/images', imageRouter);
+
+
 
 app.all ('*', () => { throw new AppError ('Route not found!', 404)});
 

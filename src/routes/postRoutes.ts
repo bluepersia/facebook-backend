@@ -5,6 +5,9 @@ import postController = require ('../controller/postController');
 import authController = require ('../controller/authController');
 import { setMine } from '../controller/factory';
 
+
+
+
 router.use ('/:postId/reactions', reactionRouter);
 
 router.use (authController.protect);
