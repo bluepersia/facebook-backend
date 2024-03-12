@@ -48,7 +48,10 @@ export const createOne = (Model:Model<any>) => handle (async (req:Request, res:R
 
     const doc = await Model.create (req.body);
 
-    (req as IRequestCreated).onCreate (doc.id);
+    const onCreate = (req as IRequestCreated).onCreate;
+
+    if (onCreate)
+        onCreate (doc.id);
 
     res.status (201).json ({
         status: 'success',
