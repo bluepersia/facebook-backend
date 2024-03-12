@@ -25,6 +25,9 @@ const postSchema = new Schema<IPost> ({
         type: Number,
         default: 0
     }
+}, {
+    toJSON: {virtuals:true},
+    toObject: { virtuals: true}
 })
 
 postSchema.virtual ('images', {
@@ -35,7 +38,10 @@ postSchema.virtual ('images', {
 
 postSchema.pre (/^find/, function (next): void
 {
-    (this as Query<unknown, unknown>).populate ('images');
+    (this as Query<unknown, unknown>).populate ({
+        path: 'user',
+        select: 'firstName lastName imageProfile'
+    }).populate ('images');
     next ();
 });
 

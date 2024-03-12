@@ -28,13 +28,25 @@ export const processImages = handle (async(req:Request, res:Response, next:()=>v
 
     if (req.file.fieldname == 'profile')
     {
-        req.body.imageProfile = `user-${(req as IRequest).user.id}-profile-${Date.now()}.jpeg`;
+        req.body.imageProfile = `user-${(req as IRequest).user.id}-profile-<SIZE>-${Date.now()}.jpeg`;
+
+        await sharp (req.file.buffer)
+        .resize (75, 75)
+        .toFormat ('jpeg')
+        .jpeg ({quality: 100})
+        .toFile (`public/img/user/${req.body.imageProfile.replace ('<SIZE>', 'small')}`);
 
         await sharp (req.file.buffer)
         .resize (150, 150)
         .toFormat ('jpeg')
         .jpeg ({quality: 100})
-        .toFile (`public/img/user/${req.body.imageProfile}`);
+        .toFile (`public/img/user/${req.body.imageProfile.replace ('<SIZE>', 'medium')}`);
+
+        await sharp (req.file.buffer)
+        .resize (300, 300)
+        .toFormat ('jpeg')
+        .jpeg ({quality: 100})
+        .toFile (`public/img/user/${req.body.imageProfile.replace ('<SIZE>', 'large')}`);
     }
 
     if (req.file.fieldname === 'cover')
