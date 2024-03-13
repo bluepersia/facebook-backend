@@ -8,7 +8,8 @@ export interface IImage extends IReactable
     post: Types.ObjectId | undefined,
     album: Types.ObjectId | undefined,
     url: string,
-    createdAt:Date
+    createdAt:Date,
+    type:string
 }
 
 
@@ -46,6 +47,10 @@ const imageSchema = new Schema<IImage> ({
     likes: {
         type:Number,
         default: 0
+    },
+    type: {
+        type:String,
+        default: 'image'
     }
 })
 

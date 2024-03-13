@@ -6,7 +6,8 @@ export interface IPost extends IReactable
 {
     user: Types.ObjectId,
     text: string,
-    createdAt:Date
+    createdAt:Date,
+    type:string
 }
 
 
@@ -24,6 +25,10 @@ const postSchema = new Schema<IPost> ({
     likes: {
         type: Number,
         default: 0
+    },
+    type: {
+        type:String,
+        default: 'post'
     }
 }, {
     toJSON: {virtuals:true},

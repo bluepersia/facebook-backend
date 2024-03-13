@@ -12,6 +12,7 @@ import userRouter from './routes/userRoutes';
 import imageRouter from './routes/imageRoutes';
 import friendshipRouter from './routes/friendshipRoutes';
 import reactionRouter from './routes/reactionRoutes';
+import commentRouter from './routes/commentRoutes';
 import globalErrorHandler from './controller/errorController';
 import AppError from './util/AppError';
 const app = express ();
@@ -49,6 +50,7 @@ app.use ('/api/v1/users', userRouter);
 app.use ('/api/v1/friends', friendshipRouter);
 app.use ('/api/v1/images', imageRouter);
 app.use ('/api/v1/reactions', reactionRouter);
+app.use ('/api/v1/comments', commentRouter);
 
 
 app.all ('*', () => { throw new AppError ('Route not found!', 404)});

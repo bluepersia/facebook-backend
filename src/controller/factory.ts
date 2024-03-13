@@ -95,6 +95,7 @@ export const updateOne = (Model:Model<any>) => handle (async (req:Request, res:R
 
 export const deleteOne = (Model:Model<any>) => handle (async (req:Request, res:Response) : Promise<void> =>
 {
+    
     const doc = await Model.findByIdAndDelete (req.params.id);
 
     if (!doc)

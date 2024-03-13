@@ -1,11 +1,13 @@
 import { HydratedDocument, Query, Schema, Types, model } from "mongoose";
 import Post from "./postModel";
 import Image from "./imageModel";
+import Comment from "./commentModel";
 
 export interface IReaction 
 {
     post: Types.ObjectId | undefined,
     image: Types.ObjectId | undefined,
+    comment: Types.ObjectId | undefined,
     user: Types.ObjectId
 }
 
@@ -20,9 +22,9 @@ const reactionSchema = new Schema<IReaction> ({
         validate: {
             validator: function (val:Types.ObjectId) : boolean
             {
-                return Boolean (val || this.image);
+                return Boolean (val || this.image || this.comment);
             },
-            message: 'Reaction must belong to an image or post'
+            message: 'Reaction must belong to an image, post or comment'
         }
     },
     image: {
@@ -31,9 +33,20 @@ const reactionSchema = new Schema<IReaction> ({
         validate: {
             validator: function (val:Types.ObjectId) : boolean
             {
-                return Boolean (val || this.post);
+                return Boolean (val || this.post || this.comment);
             },
-            message: 'Reaction must belong to an image or post'
+            message: 'Reaction must belong to an image, post or comment'
+        }
+    },
+    comment: {
+        type: Schema.ObjectId,
+        ref: 'Comment',
+        validate: {
+            validator: function (val:Types.ObjectId) : boolean
+            {
+                return Boolean (val || this.post || this.image);
+            },
+            message: 'Reaction must belong to an image, post or comment'
         }
     },
     user: {
@@ -54,11 +67,11 @@ async function calcLikes (doc:HydratedDocument<IReaction>) : Promise<void>
 {
     const stats = await Reaction.aggregate ([
         {
-            $match: doc.post ? {post: doc.post} : {image: doc.image}
+            $match: doc.post ? {post: doc.post} : doc.image ? {image: doc.image} : {comment: doc.comment}
         },
         {
             $group: {
-                _id: doc.post ? '$post' : '$image',
+                _id: doc.post ? '$post' : doc.image ? '$image' : '$comment',
                 likes: {$sum:1}
             }
         }
@@ -69,8 +82,10 @@ async function calcLikes (doc:HydratedDocument<IReaction>) : Promise<void>
 
     if (doc.post)
         await Post.findByIdAndUpdate (doc.post, data);
-    else
+    else if (doc.image)
         await Image.findByIdAndUpdate (doc.image, data);
+    else if (doc.comment)
+        await Comment.findByIdAndUpdate (doc.comment, data);
 }
 
 reactionSchema.post ('save', async function () : Promise<void>
@@ -83,7 +98,7 @@ reactionSchema.post (/(findOneAndUpdate|findOneAndDelete)/, async function (doc)
     await calcLikes (doc);
 });
 
-reactionSchema.index ({user:1, post:1, image:1}, {unique:true});
+reactionSchema.index ({user:1, post:1, image:1, comment:1}, {unique:true});
 
 const Reaction = model ('Reaction', reactionSchema);
 
